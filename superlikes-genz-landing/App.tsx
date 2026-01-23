@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 
+// Base path for assets (handles GitHub Pages subdirectory deployment)
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 // --- Global Constants & Types ---
 
 const COLORS = {
@@ -143,7 +146,7 @@ const Logo = () => {
 
   return (
     <img
-      src="/logo_app.png"
+      src={`${basePath}/logo_app.png`}
       alt="Waveful Logo"
       className="w-full h-full object-cover rounded-xl"
       onError={() => setError(true)}
@@ -254,7 +257,8 @@ const SectionHeader = ({
 
 // --- Mockup Components ---
 
-const PhoneMockup = ({ screenshot = "/Mockup-black.PNG" }: { screenshot?: string }) => {
+const PhoneMockup = ({ screenshot }: { screenshot?: string }) => {
+  const imageSrc = screenshot || `${basePath}/Mockup-black.PNG`;
   return (
     <div className="relative mx-auto w-[85%] max-w-[320px] md:max-w-[360px] aspect-[9/19.5] rotate-0 md:rotate-3 transition-transform duration-500 hover:rotate-0">
       {/* Frame */}
@@ -267,7 +271,7 @@ const PhoneMockup = ({ screenshot = "/Mockup-black.PNG" }: { screenshot?: string
         {/* Screen Content - Screenshot */}
         <div className="w-full h-full pt-7 overflow-hidden">
           <img
-            src={screenshot}
+            src={imageSrc}
             alt="App Screenshot"
             className="w-full h-full object-cover object-top"
           />
@@ -425,7 +429,7 @@ const App = () => {
               </svg>
             )}
 
-            <PhoneMockup screenshot="/screen-new-mockup.PNG" />
+            <PhoneMockup screenshot={`${basePath}/screen-new-mockup.PNG`} />
 
             {/* Floating Emojis */}
             <FloatingEmoji emoji="💙" size="xl" className="top-[-5%] right-0 md:right-[-5%]" delay={0} isMobile={isMobile} />
@@ -528,7 +532,7 @@ const App = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <PhoneMockup screenshot="/Mockup-black.PNG" />
+            <PhoneMockup screenshot={`${basePath}/Mockup-black.PNG`} />
             <FloatingEmoji emoji="✨" size="lg" className="top-0 right-0 md:right-10" delay={0.5} />
             <FloatingEmoji emoji="👀" size="md" className="bottom-10 left-0 md:left-10" delay={1.2} />
           </motion.div>
