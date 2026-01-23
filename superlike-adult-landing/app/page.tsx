@@ -2,6 +2,8 @@
 
 import React from "react"
 
+const basePath = process.env.NODE_ENV === 'production' ? '/Waveful-landing/adult' : '';
+
 import { useState, useRef, useEffect } from "react"
 import { motion, useInView, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -53,7 +55,7 @@ function WavefulLogo({ size = "default" }: { size?: "default" | "small" }) {
         iconSize
       )}>
         <img
-          src="/logo_app.png"
+          src={`${basePath}/logo_app.png`}
           alt="Waveful logo"
           className="w-full h-full object-cover"
         />

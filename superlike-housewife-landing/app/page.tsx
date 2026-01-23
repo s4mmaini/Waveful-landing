@@ -2,6 +2,8 @@
 
 import type React from "react"
 
+const basePath = process.env.NODE_ENV === 'production' ? '/Waveful-landing/housewife' : '';
+
 import { useState, useEffect } from "react"
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
@@ -82,7 +84,7 @@ function AppIconLogo({ size = 40 }: { size?: number }) {
       }}
     >
       <img
-        src="/logo_app.png"
+        src={`${basePath}/logo_app.png`}
         alt="Waveful Logo"
         className="w-full h-full object-cover"
       />
@@ -126,7 +128,7 @@ function PhoneMockup() {
                   <span className="text-sm font-medium text-black">Maria S.</span>
                 </div>
                 <div className="w-full h-24 rounded-xl overflow-hidden mb-2">
-                  <img src="/pizza.jpg" alt="Homemade pizza" className="w-full h-full object-cover" />
+                  <img src={`${basePath}/pizza.jpg`} alt="Homemade pizza" className="w-full h-full object-cover" />
                 </div>
                 <p className="text-xs text-black/70 mb-2">My favorite recipe! 💖</p>
                 <div className="flex items-center gap-3">
