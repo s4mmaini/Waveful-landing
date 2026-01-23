@@ -1,0 +1,159 @@
+name: Deploy Landing Pages to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # ========== BUILD GEN Z (Vite) ==========
+      - name: Install dependencies (GenZ)
+        working-directory: superlikes-genz-landing
+        run: pnpm install
+
+      - name: Build GenZ Landing
+        working-directory: superlikes-genz-landing
+        run: pnpm build
+        env:
+          GITHUB_ACTIONS: true
+
+      # ========== BUILD HOUSEWIFE (Next.js) ==========
+      - name: Install dependencies (Housewife)
+        working-directory: superlike-housewife-landing
+        run: pnpm install
+
+      - name: Build Housewife Landing
+        working-directory: superlike-housewife-landing
+        run: pnpm build
+        env:
+          GITHUB_ACTIONS: true
+          NODE_ENV: production
+
+      # ========== BUILD ADULT (Next.js) ==========
+      - name: Install dependencies (Adult)
+        working-directory: superlike-adult-landing
+        run: pnpm install
+
+      - name: Build Adult Landing
+        working-directory: superlike-adult-landing
+        run: pnpm build
+        env:
+          GITHUB_ACTIONS: true
+          NODE_ENV: production
+
+      # ========== COMBINE BUILDS ==========
+      - name: Prepare deployment directory
+        run: |
+          mkdir -p _site
+          cp -r superlikes-genz-landing/dist _site/genz
+          cp -r superlike-housewife-landing/out _site/housewife
+          cp -r superlike-adult-landing/out _site/adult
+
+      - name: Create root index.html
+        run: |
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Waveful Landing Pages</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+              }
+              .container { max-width: 400px; width: 100%; }
+              h1 { color: white; text-align: center; margin-bottom: 30px; font-size: 24px; }
+              a {
+                display: block;
+                padding: 18px 24px;
+                margin: 12px 0;
+                background: rgba(255,255,255,0.95);
+                color: #333;
+                text-decoration: none;
+                border-radius: 12px;
+                font-weight: 500;
+                transition: transform 0.2s, box-shadow 0.2s;
+              }
+              a:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+              }
+              .label { font-size: 14px; color: #666; margin-top: 4px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Waveful Superlike</h1>
+              <a href="./genz/">
+                <strong>Gen Z Landing</strong>
+                <div class="label">Target: Gen Z</div>
+              </a>
+              <a href="./housewife/">
+                <strong>Housewife Landing</strong>
+                <div class="label">Target: Housewife</div>
+              </a>
+              <a href="./adult/">
+                <strong>Adult Landing</strong>
+                <div class="label">Target: Adult</div>
+              </a>
+            </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Create .nojekyll
+        run: touch _site/.nojekyll
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
