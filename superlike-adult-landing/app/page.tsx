@@ -2,7 +2,7 @@
 
 import React from "react"
 
-const basePath = process.env.NODE_ENV === 'production' ? '/Waveful-landing/adult' : '';
+const basePath = process.env.NODE_ENV === 'production' ? '/adult' : '';
 
 import { useState, useRef, useEffect } from "react"
 import { motion, useInView, AnimatePresence } from "framer-motion"

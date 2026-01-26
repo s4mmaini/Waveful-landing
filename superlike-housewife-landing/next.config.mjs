@@ -3,8 +3,8 @@ const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
 
 const nextConfig = {
   output: 'export',
-  basePath: isGitHubActions ? '/Waveful-landing/housewife' : '',
-  assetPrefix: isGitHubActions ? '/Waveful-landing/housewife/' : '',
+  basePath: '/housewife',
+  assetPrefix: '/housewife/',
   trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,

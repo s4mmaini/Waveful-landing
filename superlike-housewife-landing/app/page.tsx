@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-const basePath = process.env.NODE_ENV === 'production' ? '/Waveful-landing/housewife' : '';
+const basePath = process.env.NODE_ENV === 'production' ? '/housewife' : '';
 
 import { useState, useEffect } from "react"
 import { motion, useInView } from "framer-motion"
