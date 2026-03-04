@@ -597,8 +597,8 @@ const App = () => {
                </a>
 
                {/* CTA Button */}
-               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full max-w-xs">
-                 <Button className="w-full h-14">
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full max-w-xs mx-auto">
+                 <Button className="w-full md:!w-full h-14">
                    Get Waveful — Free
                  </Button>
                </a>
