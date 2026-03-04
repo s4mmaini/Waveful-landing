@@ -4,8 +4,8 @@ import React from "react"
 
 const basePath = process.env.NODE_ENV === 'production' ? '/adult' : '';
 
-import { useState, useRef, useEffect } from "react"
-import { motion, useInView, AnimatePresence } from "framer-motion"
+import { useRef } from "react"
+import { motion, useInView } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 // ============================================
@@ -540,65 +540,20 @@ function HowItWorksSection() {
 }
 
 // ============================================
-// COUNTDOWN COMPONENT
+// APP STORE BADGE SVG
 // ============================================
-const Countdown = () => {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 30,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
-
-  useEffect(() => {
-    // Imposta la data target a 30 giorni da ora
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 30);
-
-    const interval = setInterval(() => {
-      const now = new Date();
-      const difference = targetDate.getTime() - now.getTime();
-
-      if (difference <= 0) {
-        clearInterval(interval);
-      } else {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        setTimeLeft({ days, hours, minutes, seconds });
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const TimeBox = ({ value, label }: { value: number; label: string }) => (
-    <div className="flex flex-col items-center mx-2 md:mx-4">
-      <div className="bg-white border-2 border-black rounded-xl w-14 h-14 md:w-20 md:h-20 flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-2">
-        <span className="text-xl md:text-3xl font-black text-[#FF0011]">
-          {String(value).padStart(2, '0')}
-        </span>
-      </div>
-      <span className="text-[10px] md:text-sm font-bold uppercase tracking-wider text-gray-500">{label}</span>
-    </div>
-  );
-
+function AppStoreBadge({ className = "" }: { className?: string }) {
   return (
-    <motion.div
-      className="flex justify-center flex-wrap mb-10 md:mb-12"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1, duration: 0.6 }}
-    >
-      <TimeBox value={timeLeft.days} label="Days" />
-      <TimeBox value={timeLeft.hours} label="Hours" />
-      <TimeBox value={timeLeft.minutes} label="Mins" />
-      <TimeBox value={timeLeft.seconds} label="Secs" />
-    </motion.div>
+    <svg className={className} viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+      <rect width="120" height="40" rx="6" fill="black"/>
+      <text x="42" y="12" fill="white" fontSize="5" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.5">Download on the</text>
+      <text x="42" y="27" fill="white" fontSize="11" fontWeight="600" fontFamily="system-ui, -apple-system, sans-serif">App Store</text>
+      <g transform="translate(10, 6) scale(0.65)" fill="white">
+        <path d="M18.9 14.3C18.9 10.6 21.8 8.8 21.9 8.8 20.2 6.3 17.6 6 16.7 6 14.4 5.8 12.2 7.4 11 7.4 9.8 7.4 8 6 6.1 6.1 3.6 6.1 1.3 7.5 0 9.8-2.7 14.4-0.7 21.2 1.9 25 3.1 26.8 4.5 28.9 6.4 28.8 8.2 28.7 8.9 27.6 11.1 27.6 13.3 27.6 13.9 28.8 15.8 28.8 17.8 28.8 18 28.8 19.1 26.7 20.3 24.8 21.3 22.8 21.3 22.8 21.3 22.8 18.9 21.8 18.9 14.3M15.4 4C16.4 2.8 17.1 1.1 16.9-0.5 15.5-0.4 13.7 0.5 12.7 1.7 11.8 2.7 11 4.5 11.2 6.1 12.8 6.2 14.4 5.2 15.4 4"/>
+      </g>
+    </svg>
   );
-};
+}
 
 // ============================================
 // CTA SECTION
@@ -606,27 +561,8 @@ const Countdown = () => {
 function CTASection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, amount: 0.3 })
-  const [email, setEmail] = useState("")
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
-  const [errorMessage, setErrorMessage] = useState("")
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!email || !email.includes("@")) {
-      setStatus("error")
-      setErrorMessage("Please enter a valid email address")
-      return
-    }
-    
-    setStatus("loading")
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    setStatus("success")
-  }
-  
+  const APP_STORE_URL = "https://apps.apple.com/it/app/waveful-become-a-creator/id1532913255?l=en-GB"
+
   return (
     <section ref={ref} id="waitlist" className="py-24 md:py-32 bg-background relative overflow-hidden">
       {/* Decorative background */}
@@ -643,14 +579,14 @@ function CTASection() {
           }}
         />
       </div>
-      
+
       {/* Floating emoji */}
       <FloatingEmoji emoji="💰" className="top-20 left-[10%] hidden md:block" size="text-5xl" delay={0} />
       <FloatingEmoji emoji="💋" className="top-32 right-[15%] hidden md:block" size="text-4xl" delay={0.5} />
       <FloatingEmoji emoji="💎" className="bottom-32 left-[20%] hidden md:block" size="text-4xl" delay={1} />
       <FloatingEmoji emoji="👑" className="bottom-40 right-[10%] hidden md:block" size="text-5xl" delay={1.5} />
       <FloatingEmoji emoji="✨" className="top-1/2 left-[5%] hidden md:block" size="text-3xl" delay={2} />
-      
+
       <div className="max-w-2xl mx-auto px-4 md:px-8 text-center relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -661,92 +597,54 @@ function CTASection() {
             Ready to Turn Attention Into <span className="text-[#FF0011]">Income</span>?
           </h2>
           <p className="text-lg text-muted-foreground mb-10 max-w-lg mx-auto">
-            Join 50,000+ women already on the waitlist. Start earning from your desirability when we launch.
+            Download Waveful now and start earning from your desirability. It&apos;s free.
           </p>
         </motion.div>
 
-        {/* Countdown Timer */}
-        <Countdown />
+        {/* App Icon */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={isInView ? { opacity: 1, scale: 1 } : {}}
+          transition={{ delay: 0.1, duration: 0.6 }}
+          className="mb-8"
+        >
+          <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="inline-block">
+            <motion.img
+              src={`${basePath}/logo_app.png`}
+              alt="Waveful App"
+              className="w-28 h-28 md:w-32 md:h-32 rounded-[28px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mx-auto"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            />
+          </a>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.2, duration: 0.6 }}
+          className="flex flex-col items-center gap-5"
         >
-          <AnimatePresence mode="wait">
-            {status === "success" ? (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className="bg-card text-card-foreground rounded-full px-8 py-6 shadow-lg inline-block"
-              >
-                <span className="text-xl font-semibold">You&apos;re in! Check your email 💋</span>
-              </motion.div>
-            ) : (
-              <motion.form
-                key="form"
-                onSubmit={handleSubmit}
-                className="relative"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <div className={cn(
-                  "flex items-center bg-background rounded-full shadow-lg border-2 transition-colors overflow-hidden",
-                  status === "error" ? "border-[#FF0011]" : "border-border",
-                  "focus-within:border-[#FF0011]"
-                )}>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value)
-                      if (status === "error") setStatus("idle")
-                    }}
-                    placeholder="your@email.com"
-                    className="flex-1 bg-transparent px-6 py-4 text-lg text-foreground placeholder:text-muted-foreground focus:outline-none"
-                    aria-label="Email address"
-                    disabled={status === "loading"}
-                  />
-                  <motion.button
-                    type="submit"
-                    disabled={status === "loading"}
-                    className="bg-foreground text-background px-6 md:px-8 py-4 text-base font-bold rounded-full m-1.5 disabled:opacity-70"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {status === "loading" ? (
-                      <motion.span
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="inline-block"
-                      >
-                        ⏳
-                      </motion.span>
-                    ) : (
-                      "Start Earning"
-                    )}
-                  </motion.button>
-                </div>
-                
-                {status === "error" && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[#FF0011] text-sm mt-3"
-                  >
-                    {errorMessage}
-                  </motion.p>
-                )}
-              </motion.form>
-            )}
-          </AnimatePresence>
-          
-          {/* Privacy text */}
-          <p className="text-sm text-muted-foreground mt-6">
-            We respect your privacy. Your data is secure and never shared.
+          {/* App Store Badge */}
+          <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <AppStoreBadge className="w-[150px] h-auto" />
+            </motion.div>
+          </a>
+
+          {/* CTA Button */}
+          <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full max-w-xs">
+            <motion.div
+              className="bg-[#FF0011] text-white px-8 py-4 text-lg font-bold rounded-full shadow-lg cursor-pointer text-center"
+              whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(255, 0, 17, 0.3)" }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Download Now — It&apos;s Free
+            </motion.div>
+          </a>
+
+          <p className="text-sm text-muted-foreground mt-2">
+            Free &bull; No signup required
           </p>
         </motion.div>
       </div>

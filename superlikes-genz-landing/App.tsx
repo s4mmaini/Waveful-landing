@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 // Base path for assets (handles GitHub Pages subdirectory deployment)
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -154,61 +154,16 @@ const Logo = () => {
   );
 };
 
-const Countdown = () => {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 30,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
-
-  useEffect(() => {
-    // Set target date to 30 days from now
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 30);
-    
-    const interval = setInterval(() => {
-      const now = new Date();
-      const difference = targetDate.getTime() - now.getTime();
-
-      if (difference <= 0) {
-        clearInterval(interval);
-      } else {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        
-        setTimeLeft({ days, hours, minutes, seconds });
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const TimeBox = ({ value, label }: { value: number; label: string }) => (
-    <div className="flex flex-col items-center mx-2 md:mx-4">
-      <div className="bg-white border-2 border-black rounded-xl w-14 h-14 md:w-20 md:h-20 flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-2">
-        <span className="text-xl md:text-3xl font-black text-[#FF0011]">
-          {String(value).padStart(2, '0')}
-        </span>
-      </div>
-      <span className="text-[10px] md:text-sm font-bold uppercase tracking-wider text-gray-500">{label}</span>
-    </div>
-  );
-
-  return (
-    <motion.div 
-      variants={ANIMATION_VARIANTS.fadeInUp}
-      className="flex justify-center flex-wrap mb-10 md:mb-12"
-    >
-      <TimeBox value={timeLeft.days} label="Days" />
-      <TimeBox value={timeLeft.hours} label="Hours" />
-      <TimeBox value={timeLeft.minutes} label="Mins" />
-      <TimeBox value={timeLeft.seconds} label="Secs" />
-    </motion.div>
-  );
-};
+const AppStoreBadge = ({ className = "" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+    <rect width="120" height="40" rx="6" fill="black"/>
+    <text x="42" y="12" fill="white" fontSize="5" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.5">Download on the</text>
+    <text x="42" y="27" fill="white" fontSize="11" fontWeight="600" fontFamily="system-ui, -apple-system, sans-serif">App Store</text>
+    <g transform="translate(10, 6) scale(0.65)" fill="white">
+      <path d="M18.9 14.3C18.9 10.6 21.8 8.8 21.9 8.8 20.2 6.3 17.6 6 16.7 6 14.4 5.8 12.2 7.4 11 7.4 9.8 7.4 8 6 6.1 6.1 3.6 6.1 1.3 7.5 0 9.8-2.7 14.4-0.7 21.2 1.9 25 3.1 26.8 4.5 28.9 6.4 28.8 8.2 28.7 8.9 27.6 11.1 27.6 13.3 27.6 13.9 28.8 15.8 28.8 17.8 28.8 18 28.8 19.1 26.7 20.3 24.8 21.3 22.8 21.3 22.8 21.3 22.8 18.9 21.8 18.9 14.3M15.4 4C16.4 2.8 17.1 1.1 16.9-0.5 15.5-0.4 13.7 0.5 12.7 1.7 11.8 2.7 11 4.5 11.2 6.1 12.8 6.2 14.4 5.2 15.4 4"/>
+    </g>
+  </svg>
+);
 
 const SectionHeader = ({ 
   eyebrow, 
@@ -286,29 +241,17 @@ const PhoneMockup = ({ screenshot }: { screenshot?: string }) => {
 
 // --- Main App Component ---
 
+const APP_STORE_URL = "https://apps.apple.com/it/app/waveful-become-a-creator/id1532913255?l=en-GB";
+
 const App = () => {
-  const [email, setEmail] = useState('');
-  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [isMobile, setIsMobile] = useState(false);
-  
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    
-    setFormStatus('loading');
-    setTimeout(() => {
-      // Simulate success
-      setFormStatus('success');
-      setEmail('');
-    }, 1500);
-  };
 
   const scrollToWaitlist = () => {
     document.getElementById('waitlist-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -633,45 +576,44 @@ const App = () => {
                See Who They're <br/>
                <span className="text-[#FF0011]">Really</span> Superliking
              </motion.h2>
-             <motion.p 
-               variants={ANIMATION_VARIANTS.fadeInUp} 
+             <motion.p
+               variants={ANIMATION_VARIANTS.fadeInUp}
                className="text-lg md:text-2xl text-gray-600 mb-12 max-w-xl mx-auto font-medium"
              >
-               Join 50,000+ Wavers uncovering the truth about their partner.
+               Download Waveful now. The truth is one tap away.
              </motion.p>
-             
-             <Countdown />
 
-             <motion.form 
-               variants={ANIMATION_VARIANTS.fadeInUp}
-               onSubmit={handleWaitlistSubmit}
-               className="max-w-md mx-auto relative"
-             >
-               {formStatus === 'success' ? (
-                 <motion.div 
-                   initial={{ opacity: 0, scale: 0.8 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   className="bg-green-50 border border-green-200 text-green-800 rounded-[24px] p-6 text-xl font-bold flex items-center justify-center gap-3"
+             {/* App Icon */}
+             <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="mb-8">
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="inline-block">
+                 <motion.div
+                   className="w-28 h-28 md:w-32 md:h-32 rounded-[28px] overflow-hidden mx-auto shadow-[0_8px_30px_rgba(0,0,255,0.15)]"
+                   whileHover={{ scale: 1.05 }}
+                   whileTap={{ scale: 0.95 }}
                  >
-                   <span>You're in! Check your email 💙</span>
+                   <Logo />
                  </motion.div>
-               ) : (
-                 <div className="flex flex-col md:flex-row gap-4">
-                   <input 
-                     type="email" 
-                     placeholder="your@email.com" 
-                     required
-                     value={email}
-                     onChange={(e) => setEmail(e.target.value)}
-                     className="flex-1 bg-gray-50 border-2 border-transparent focus:border-[#0000FF] focus:bg-white transition-all outline-none h-14 rounded-[20px] px-6 text-lg placeholder-gray-400 font-medium"
-                   />
-                   <Button type="submit" loading={formStatus === 'loading'} className="h-14 md:px-10">
-                     Join Waitlist
-                   </Button>
-                 </div>
-               )}
-               <p className="mt-4 text-sm text-gray-400 font-medium">No spam. Just Superlikes updates.</p>
-             </motion.form>
+               </a>
+             </motion.div>
+
+             {/* Download CTA */}
+             <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="flex flex-col items-center gap-5 max-w-md mx-auto">
+               {/* App Store Badge */}
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
+                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                   <AppStoreBadge className="w-[150px] h-auto" />
+                 </motion.div>
+               </a>
+
+               {/* CTA Button */}
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full max-w-xs">
+                 <Button className="w-full h-14">
+                   Get Waveful — Free
+                 </Button>
+               </a>
+
+               <p className="text-sm text-gray-400 font-medium">Free &bull; No signup required</p>
+             </motion.div>
           </motion.div>
         </div>
 
