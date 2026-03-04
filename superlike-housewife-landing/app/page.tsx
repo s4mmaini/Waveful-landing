@@ -299,22 +299,6 @@ function Ticker() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// APP STORE BADGE SVG
-// ═══════════════════════════════════════════════════════════════
-function AppStoreBadge({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
-      <rect width="120" height="40" rx="6" fill="black"/>
-      <text x="42" y="12" fill="white" fontSize="5" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.5">Download on the</text>
-      <text x="42" y="27" fill="white" fontSize="11" fontWeight="600" fontFamily="system-ui, -apple-system, sans-serif">App Store</text>
-      <g transform="translate(10, 6) scale(0.65)" fill="white">
-        <path d="M18.9 14.3C18.9 10.6 21.8 8.8 21.9 8.8 20.2 6.3 17.6 6 16.7 6 14.4 5.8 12.2 7.4 11 7.4 9.8 7.4 8 6 6.1 6.1 3.6 6.1 1.3 7.5 0 9.8-2.7 14.4-0.7 21.2 1.9 25 3.1 26.8 4.5 28.9 6.4 28.8 8.2 28.7 8.9 27.6 11.1 27.6 13.3 27.6 13.9 28.8 15.8 28.8 17.8 28.8 18 28.8 19.1 26.7 20.3 24.8 21.3 22.8 21.3 22.8 21.3 22.8 18.9 21.8 18.9 14.3M15.4 4C16.4 2.8 17.1 1.1 16.9-0.5 15.5-0.4 13.7 0.5 12.7 1.7 11.8 2.7 11 4.5 11.2 6.1 12.8 6.2 14.4 5.2 15.4 4"/>
-      </g>
-    </svg>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
 // MAIN PAGE COMPONENT
 // ═══════════════════════════════════════════════════════════════
 export default function WavefulLanding() {
@@ -640,7 +624,7 @@ export default function WavefulLanding() {
             {/* App Store Badge */}
             <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <AppStoreBadge className="w-[150px] h-auto" />
+                <img src={`${basePath}/Download_on_the_App_Store_Badge.svg`} alt="Download on the App Store" className="w-[150px] h-auto" />
               </motion.div>
             </a>
 
@@ -656,7 +640,7 @@ export default function WavefulLanding() {
             </a>
 
             <p className="text-sm font-medium text-black/50 mt-2">
-              Free &bull; No signup required
+              Join 3M+ women already feeling appreciated on Waveful
             </p>
           </motion.div>
         </div>
