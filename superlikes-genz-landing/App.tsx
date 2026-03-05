@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+declare global {
+  interface Window { mixpanel: any; }
+}
+
+const trackEvent = (ctaName: string) => {
+  if (window.mixpanel) {
+    window.mixpanel.track('cta_click', { cta_name: ctaName });
+  }
+};
+
 // Base path for assets (handles GitHub Pages subdirectory deployment)
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -323,12 +333,12 @@ const App = () => {
               variants={ANIMATION_VARIANTS.fadeInUp}
               className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto"
             >
-              <Button onClick={scrollToWaitlist} className="w-full md:w-auto">
+              <Button onClick={() => { trackEvent('hero_get_early_access'); scrollToWaitlist(); }} className="w-full md:w-auto">
                 Get Early Access
               </Button>
-              <a 
-                href="#how-it-works" 
-                onClick={scrollToHowItWorks}
+              <a
+                href="#how-it-works"
+                onClick={(e) => { trackEvent('hero_why_it_matters'); scrollToHowItWorks(e); }}
                 className="text-[#0000FF] font-bold text-base md:text-lg hover:underline py-2"
               >
                 Why it matters ↓
@@ -505,7 +515,7 @@ const App = () => {
             </motion.div>
             
             <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="mt-10">
-               <Button variant="secondary" className="w-full md:w-auto" onClick={scrollToWaitlist}>
+               <Button variant="secondary" className="w-full md:w-auto" onClick={() => { trackEvent('mid_see_it_in_action'); scrollToWaitlist(); }}>
                  See it in action
                </Button>
             </motion.div>
@@ -576,7 +586,7 @@ const App = () => {
 
              {/* App Icon */}
              <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="mb-8">
-               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="inline-block">
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="inline-block" onClick={() => trackEvent('footer_app_icon')}>
                  <motion.div
                    className="w-28 h-28 md:w-32 md:h-32 rounded-[28px] overflow-hidden mx-auto shadow-[0_8px_30px_rgba(0,0,255,0.15)]"
                    whileHover={{ scale: 1.05 }}
@@ -590,14 +600,14 @@ const App = () => {
              {/* Download CTA */}
              <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="flex flex-col items-center gap-5 max-w-md mx-auto">
                {/* App Store Badge */}
-               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent('footer_appstore_badge')}>
                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                    <img src={`${basePath}/Download_on_the_App_Store_Badge.svg`} alt="Download on the App Store" className="w-[150px] h-auto" />
                  </motion.div>
                </a>
 
                {/* CTA Button */}
-               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full max-w-xs mx-auto">
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full max-w-xs mx-auto" onClick={() => trackEvent('footer_get_waveful_free')}>
                  <Button className="w-full md:!w-full h-14">
                    Get Waveful — Free
                  </Button>
@@ -625,11 +635,11 @@ const App = () => {
           </div>
           
           <div className="flex items-center gap-6 text-sm font-medium text-gray-500">
-             <a href="#" className="hover:text-black transition-colors">About</a>
+             <a href="#" className="hover:text-black transition-colors" onClick={() => trackEvent('footer_about')}>About</a>
              <span>•</span>
-             <a href="#" className="hover:text-black transition-colors">Privacy</a>
+             <a href="#" className="hover:text-black transition-colors" onClick={() => trackEvent('footer_privacy')}>Privacy</a>
              <span>•</span>
-             <a href="#" className="hover:text-black transition-colors">Terms</a>
+             <a href="#" className="hover:text-black transition-colors" onClick={() => trackEvent('footer_terms')}>Terms</a>
           </div>
 
           <p className="text-xs text-gray-400 font-medium">© 2026 Waveful</p>
