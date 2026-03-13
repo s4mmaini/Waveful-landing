@@ -254,10 +254,6 @@ const App = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const scrollToWaitlist = () => {
-    document.getElementById('waitlist-section')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const scrollToHowItWorks = (e: React.MouseEvent) => {
     e.preventDefault();
     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
@@ -333,9 +329,11 @@ const App = () => {
               variants={ANIMATION_VARIANTS.fadeInUp}
               className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto"
             >
-              <Button onClick={() => { trackEvent('hero_get_early_access'); scrollToWaitlist(); }} className="w-full md:w-auto">
-                Get Early Access
-              </Button>
+              <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto" onClick={() => trackEvent('hero_get_early_access')}>
+                <Button className="w-full md:w-auto">
+                  Get Early Access
+                </Button>
+              </a>
               <a
                 href="#how-it-works"
                 onClick={(e) => { trackEvent('hero_why_it_matters'); scrollToHowItWorks(e); }}
@@ -515,9 +513,11 @@ const App = () => {
             </motion.div>
             
             <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="mt-10">
-               <Button variant="secondary" className="w-full md:w-auto" onClick={() => { trackEvent('mid_see_it_in_action'); scrollToWaitlist(); }}>
-                 See it in action
-               </Button>
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto" onClick={() => trackEvent('mid_see_it_in_action')}>
+                 <Button variant="secondary" className="w-full md:w-auto">
+                   See it in action
+                 </Button>
+               </a>
             </motion.div>
           </motion.div>
         </div>
