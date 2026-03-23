@@ -408,14 +408,14 @@ const App = () => {
               variants={ANIMATION_VARIANTS.fadeInUp}
               className="text-[40px] md:text-7xl lg:text-[5.5rem] font-black leading-[1.05] tracking-tight mb-6 md:mb-8"
             >
-              Ready for the <span className="text-[#FF0011]">Truth</span>?
+              Make Your <span className="text-[#FF0011]">Move</span>.
             </motion.h1>
             
             <motion.p 
               variants={ANIMATION_VARIANTS.fadeInUp}
               className="text-lg md:text-xl text-gray-600 font-medium leading-relaxed mb-8 md:mb-10 max-w-xl mx-auto md:mx-0"
             >
-              See who your boyfriend, crush, or bestie is really Superliking.
+              Superlike who you want. See who's Superliking her.
             </motion.p>
             
             <motion.div 
@@ -443,10 +443,10 @@ const App = () => {
               className="mt-10 md:mt-16 flex flex-col md:flex-row gap-4 md:absolute md:top-[110%] md:left-0 md:w-[140%] md:pointer-events-none"
             >
               <div className="bg-white border-2 border-[#FF0011] rounded-full px-5 py-3 shadow-md inline-block transform md:-rotate-2 w-fit mx-auto md:mx-0">
-                <p className="font-bold text-xs md:text-sm">Found out he was cheating 💔</p>
+                <p className="font-bold text-xs md:text-sm">She never saw it coming</p>
               </div>
               <div className="bg-white border-2 border-[#0000FF] rounded-full px-5 py-3 shadow-md inline-block transform md:rotate-2 w-fit mx-auto md:mx-0">
-                <p className="font-bold text-xs md:text-sm">Best feature on Waveful 😤</p>
+                <p className="font-bold text-xs md:text-sm">Finally, an app that gets it</p>
               </div>
             </motion.div>
           </motion.div>
@@ -469,10 +469,9 @@ const App = () => {
 
             {/* Floating Emojis */}
             <FloatingEmoji emoji="💙" size="xl" className="top-[-5%] right-0 md:right-[-5%]" delay={0} isMobile={isMobile} />
-            <FloatingEmoji emoji="💕" size="lg" className="top-[20%] left-0 md:left-[-10%]" delay={1.5} isMobile={isMobile} />
-            <FloatingEmoji emoji="💔" size="md" className="bottom-[10%] left-[5%] md:left-[-5%]" delay={0.8} isMobile={isMobile} />
+            <FloatingEmoji emoji="🔥" size="lg" className="top-[20%] left-0 md:left-[-10%]" delay={1.5} isMobile={isMobile} />
+            <FloatingEmoji emoji="👀" size="md" className="bottom-[10%] left-[5%] md:left-[-5%]" delay={0.8} isMobile={isMobile} />
             <FloatingEmoji emoji="✨" size="md" className="top-[40%] right-[-5%]" delay={2.2} isMobile={isMobile} />
-            <FloatingEmoji emoji="👀" size="sm" className="bottom-[30%] right-[-2%]" delay={1} isMobile={isMobile} />
           </motion.div>
         </div>
       </section>
@@ -487,29 +486,34 @@ const App = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 auto-rows-fr">
             {[
               {
-                text: "I really thought he was being all lowkey… then I opened Waveful and saw he’s been Superliking the same girl all week. I’m sick. 😭",
+                text: "I was curious if she was talking to someone else. Opened Waveful, saw the Superlikes. Now I know.",
                 type: "negative",
-                tag: "emma, 19"
+                tag: "marco, 38"
               },
               {
-                text: "When the cutest guy in my class Superliked me and my phone basically yelled about it. I’ve never opened an app that fast. 💙",
+                text: "Sent a Superlike and she messaged me within minutes. No games, no waiting.",
                 type: "positive",
-                tag: "sarah, 21"
+                tag: "alex, 42"
               },
               {
-                text: "The fact my friends can see who I Superlike keeps me in check… but also makes it so much more fun. 👀",
+                text: "Discreet, fast, and it actually works. That’s all I needed.",
                 type: "positive",
-                tag: "lauren, 20"
+                tag: "dan, 35"
               },
               {
-                text: "I sent one Superlike and it didn’t get lost in the void. No ‘hope they see it’, they saw it. Instantly. 🔥",
+                text: "No algorithm burying your profile. You Superlike, they see it. Simple.",
                 type: "positive",
-                tag: "madi, 22"
+                tag: "james, 47"
               },
               {
-                text: "When he says ‘I’m not talking to anyone else’ but Waveful has receipts. Love that for me. 🙃",
+                text: "She said she wasn’t on any apps. Waveful showed me the receipts.",
                 type: "negative",
-                tag: "olivia, 18"
+                tag: "mike, 51"
+              },
+              {
+                text: "Best feature? She gets a full-screen notification. Can’t miss it.",
+                type: "positive",
+                tag: "chris, 44"
               }
             ].map((card, idx) => {
               // Mobile: show only first 3 cards
@@ -581,24 +585,24 @@ const App = () => {
               What's a <span className="text-[#FF0011]">Superlike</span>?
             </motion.h2>
             <motion.p variants={ANIMATION_VARIANTS.fadeInUp} className="text-xl md:text-2xl font-medium text-gray-500 mb-8">
-              It's like a like, but everyone can see it.
+              It's like a like, but she can't ignore it.
             </motion.p>
             <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="space-y-4 text-base md:text-lg text-left inline-block">
                <div className="flex items-start gap-4">
                   <span className="text-2xl mt-1">💙</span>
-                  <p>They get a special full-screen notification</p>
+                  <p>She gets a full-screen notification</p>
                </div>
                <div className="flex items-start gap-4">
                   <span className="text-2xl mt-1">✨</span>
-                  <p>It shows up at the top of their feed</p>
+                  <p>You show up at the top of her feed</p>
                </div>
                <div className="flex items-start gap-4">
                   <span className="text-2xl mt-1">👀</span>
-                  <p>Your friends can see who you're Superliking</p>
+                  <p>See who's Superliking who</p>
                </div>
                <div className="flex items-start gap-4">
-                  <span className="text-2xl mt-1">💸</span>
-                  <p>Get noticed. Get paid.</p>
+                  <span className="text-2xl mt-1">🔥</span>
+                  <p>Get noticed. Stand out.</p>
                </div>
             </motion.div>
             
@@ -623,7 +627,7 @@ const App = () => {
           variants={ANIMATION_VARIANTS.staggerContainer}
         >
           <motion.p variants={ANIMATION_VARIANTS.fadeInUp} className="text-xl md:text-2xl font-bold mb-4">
-            Ready to see the truth?
+            Ready to make your move?
           </motion.p>
           <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="flex justify-center">
             <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent('mid_scroll_download_free')}>
@@ -643,9 +647,9 @@ const App = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { icon: "👀", title: "Complete Transparency", desc: "See who's Superliking who. No hiding." },
+              { icon: "👀", title: "Full Visibility", desc: "See exactly who's interested. No guessing." },
               { icon: "💙", title: "Stand Out Instantly", desc: "Your Superlike gets instant attention. No algorithm." },
-              { icon: "🔥", title: "Keep It Real", desc: "Can't be faked. When they send one, they mean it." }
+              { icon: "🔥", title: "No Games", desc: "When she gets your Superlike, she knows you mean it." }
             ].map((item, idx) => (
               <motion.div
                 key={idx}
@@ -684,14 +688,14 @@ const App = () => {
                variants={ANIMATION_VARIANTS.fadeInUp} 
                className="text-4xl md:text-7xl font-black mb-6 tracking-tight"
              >
-               See Who They're <br/>
+               See Who She's <br/>
                <span className="text-[#FF0011]">Really</span> Superliking
              </motion.h2>
              <motion.p
                variants={ANIMATION_VARIANTS.fadeInUp}
                className="text-lg md:text-2xl text-gray-600 mb-12 max-w-xl mx-auto font-medium"
              >
-               Download Waveful now. The truth is one tap away.
+               Download Waveful. One tap. No games.
              </motion.p>
 
              {/* App Icon */}
@@ -730,7 +734,7 @@ const App = () => {
 
         {/* Scattered Emojis for CTA */}
         <FloatingEmoji emoji="💙" size="lg" className="top-10 left-10 md:left-[20%]" delay={0.2} isMobile={isMobile} />
-        <FloatingEmoji emoji="💔" size="md" className="bottom-20 right-10 md:right-[20%]" delay={0.7} isMobile={isMobile} />
+        <FloatingEmoji emoji="🔥" size="md" className="bottom-20 right-10 md:right-[20%]" delay={0.7} isMobile={isMobile} />
         <FloatingEmoji emoji="✨" size="lg" className="top-20 right-5 md:right-[15%]" delay={1.5} isMobile={isMobile} />
       </section>
 
