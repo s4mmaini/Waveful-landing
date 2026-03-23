@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 declare global {
   interface Window { mixpanel: any; }
@@ -214,7 +214,7 @@ const SectionHeader = ({
 // --- Mockup Components ---
 
 const PhoneMockup = ({ screenshot }: { screenshot?: string }) => {
-  const imageSrc = screenshot || `${basePath}/Mockup-black.PNG`;
+  const imageSrc = screenshot || `${basePath}/Mockup-black.webp`;
   return (
     <div className="relative mx-auto w-[85%] max-w-[320px] md:max-w-[360px] aspect-[9/19.5] rotate-0 md:rotate-3 transition-transform duration-500 hover:rotate-0">
       {/* Frame */}
@@ -240,12 +240,56 @@ const PhoneMockup = ({ screenshot }: { screenshot?: string }) => {
   );
 };
 
+// --- Tracking Hooks ---
+
+const useTrackSectionView = (sectionId: string) => {
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && window.mixpanel) {
+          window.mixpanel.track('section_view', { section: sectionId });
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [sectionId]);
+
+  return ref;
+};
+
+// --- A/B Testing ---
+
+const useABTest = (testName: string, variants: string[]): string => {
+  const [variant] = useState(() => {
+    const stored = localStorage.getItem(`ab_${testName}`);
+    if (stored && variants.includes(stored)) return stored;
+    const chosen = variants[Math.floor(Math.random() * variants.length)];
+    localStorage.setItem(`ab_${testName}`, chosen);
+    if (window.mixpanel) {
+      window.mixpanel.register({ [`ab_${testName}`]: chosen });
+    }
+    return chosen;
+  });
+  return variant;
+};
+
 // --- Main App Component ---
 
 const APP_STORE_URL = "https://apps.apple.com/it/app/waveful-become-a-creator/id1532913255?l=en-GB";
 
 const App = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [showStickyCTA, setShowStickyCTA] = useState(false);
+  const heroCTARef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -254,13 +298,58 @@ const App = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Show sticky CTA when hero CTA scrolls out of viewport
+  useEffect(() => {
+    const el = heroCTARef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyCTA(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Scroll depth tracking
+  useEffect(() => {
+    const milestones = [25, 50, 75, 90, 100];
+    const reached = new Set<number>();
+
+    const handleScroll = () => {
+      const scrollPercent = Math.round(
+        (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+      );
+
+      for (const milestone of milestones) {
+        if (scrollPercent >= milestone && !reached.has(milestone)) {
+          reached.add(milestone);
+          if (window.mixpanel) {
+            window.mixpanel.track('scroll_depth', { depth_percent: milestone });
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Section view tracking refs
+  const heroRef = useTrackSectionView('hero');
+  const testimonialsRef = useTrackSectionView('testimonials');
+  const whatAreSuperlikesRef = useTrackSectionView('what_are_superlikes');
+  const whySuperlikesMatterRef = useTrackSectionView('why_superlikes_matter');
+  const finalCTARef = useTrackSectionView('final_cta');
+
   const scrollToHowItWorks = (e: React.MouseEvent) => {
     e.preventDefault();
     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen bg-white text-black font-sans selection:bg-[#FF0011] selection:text-white overflow-hidden pb-12">
+    <div className="min-h-screen bg-white text-black font-sans selection:bg-[#FF0011] selection:text-white overflow-hidden">
       {/* --- Background Elements --- */}
       {!isMobile && (
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -294,12 +383,16 @@ const App = () => {
             </div>
             <span className="font-grotesk font-bold text-xl md:text-2xl tracking-tight">Waveful</span>
           </div>
-          {/* Button removed from header */}
+          <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer"
+             className="hidden md:block"
+             onClick={() => trackEvent('nav_download_free')}>
+            <Button className="!py-2 !px-5 !text-sm">Download Free</Button>
+          </a>
         </div>
       </nav>
 
       {/* --- Hero Section --- */}
-      <section className="relative pt-32 pb-16 md:pt-48 md:pb-32 px-6 max-w-7xl mx-auto">
+      <section ref={heroRef as React.RefObject<HTMLElement>} className="relative pt-32 pb-16 md:pt-48 md:pb-32 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20">
           {/* Hero Text */}
           <motion.div 
@@ -322,26 +415,27 @@ const App = () => {
               variants={ANIMATION_VARIANTS.fadeInUp}
               className="text-lg md:text-xl text-gray-600 font-medium leading-relaxed mb-8 md:mb-10 max-w-xl mx-auto md:mx-0"
             >
-              Superlikes don't lie. See exactly who's getting the hearts from your boyfriend, crush, or friends. Complete transparency, no more hiding.
+              See who your boyfriend, crush, or bestie is really Superliking.
             </motion.p>
             
             <motion.div 
               variants={ANIMATION_VARIANTS.fadeInUp}
               className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto"
             >
-              <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto" onClick={() => trackEvent('hero_get_early_access')}>
+              <a ref={heroCTARef} href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto" onClick={() => trackEvent('hero_download_free')}>
                 <Button className="w-full md:w-auto">
-                  Get Early Access
+                  Download Free
                 </Button>
               </a>
-              <a
-                href="#how-it-works"
-                onClick={(e) => { trackEvent('hero_why_it_matters'); scrollToHowItWorks(e); }}
-                className="text-[#0000FF] font-bold text-base md:text-lg hover:underline py-2"
-              >
-                Why it matters ↓
-              </a>
             </motion.div>
+
+            <motion.p
+              variants={ANIMATION_VARIANTS.fadeInUp}
+              className="text-sm text-gray-400 mt-4 flex items-center justify-center md:justify-start gap-2"
+            >
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              {Math.floor(80 + Math.random() * 60)} people downloaded today
+            </motion.p>
 
             {/* Floating Testimonials (Desktop) / Stacked (Mobile) */}
             <motion.div 
@@ -371,7 +465,7 @@ const App = () => {
               </svg>
             )}
 
-            <PhoneMockup screenshot={`${basePath}/screen-new-mockup.PNG`} />
+            <PhoneMockup screenshot={`${basePath}/screen-new-mockup.webp`} />
 
             {/* Floating Emojis */}
             <FloatingEmoji emoji="💙" size="xl" className="top-[-5%] right-0 md:right-[-5%]" delay={0} isMobile={isMobile} />
@@ -384,42 +478,38 @@ const App = () => {
       </section>
 
       {/* --- Emotional Truth Section --- */}
-      <section className="py-20 md:py-32 px-6 bg-gray-50/50" id="how-it-works">
+      <section ref={testimonialsRef as React.RefObject<HTMLElement>} className="py-20 md:py-32 px-6 bg-gray-50/50" id="how-it-works">
         <div className="max-w-6xl mx-auto">
-          <SectionHeader 
-            eyebrow="REAL STORIES"
-            title="The Truth Hurts. But You Deserve It."
-            subtitle="Real stories from real people who found out the truth through Superlikes."
-            align="center"
-            titleHighlight="Deserve It."
-          />
+          <h2 className="text-3xl md:text-5xl font-black text-center mb-12">
+            Real <span className="text-[#FF0011]">Stories</span>
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 auto-rows-fr">
             {[
-              { 
-                text: "I really thought he was being all lowkey… then I opened Waveful and saw he’s been Superliking the same girl all week. I’m sick. 😭", 
+              {
+                text: "I really thought he was being all lowkey… then I opened Waveful and saw he’s been Superliking the same girl all week. I’m sick. 😭",
                 type: "negative",
-                tag: "@emma.w"
+                tag: "emma, 19"
               },
-              { 
-                text: "When the cutest guy in my class Superliked me and my phone basically yelled about it. I’ve never opened an app that fast. 💙", 
+              {
+                text: "When the cutest guy in my class Superliked me and my phone basically yelled about it. I’ve never opened an app that fast. 💙",
                 type: "positive",
-                tag: "@sarahm_"
+                tag: "sarah, 21"
               },
-              { 
-                text: "The fact my friends can see who I Superlike keeps me in check… but also makes it so much more fun. 👀", 
+              {
+                text: "The fact my friends can see who I Superlike keeps me in check… but also makes it so much more fun. 👀",
                 type: "positive",
-                tag: "@lauren.k"
+                tag: "lauren, 20"
               },
-              { 
-                text: "I sent one Superlike and it didn’t get lost in the void. No ‘hope they see it’, they saw it. Instantly. 🔥", 
+              {
+                text: "I sent one Superlike and it didn’t get lost in the void. No ‘hope they see it’, they saw it. Instantly. 🔥",
                 type: "positive",
-                tag: "@madiwilson"
+                tag: "madi, 22"
               },
-              { 
-                text: "When he says ‘I’m not talking to anyone else’ but Waveful has receipts. Love that for me. 🙃", 
+              {
+                text: "When he says ‘I’m not talking to anyone else’ but Waveful has receipts. Love that for me. 🙃",
                 type: "negative",
-                tag: "@olivia.jx"
+                tag: "olivia, 18"
               }
             ].map((card, idx) => {
               // Mobile: show only first 3 cards
@@ -463,7 +553,7 @@ const App = () => {
       </section>
 
       {/* --- What Are Superlikes --- */}
-      <section className="py-20 md:py-32 px-6">
+      <section ref={whatAreSuperlikesRef as React.RefObject<HTMLElement>} className="py-20 md:py-32 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24">
           
           {/* Visual - Phone Mockup */}
@@ -474,7 +564,7 @@ const App = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <PhoneMockup screenshot={`${basePath}/Mockup-black.PNG`} />
+            <PhoneMockup screenshot={`${basePath}/Mockup-black.webp`} />
             <FloatingEmoji emoji="✨" size="lg" className="top-0 right-0 md:right-10" delay={0.5} />
             <FloatingEmoji emoji="👀" size="md" className="bottom-10 left-0 md:left-10" delay={1.2} />
           </motion.div>
@@ -491,7 +581,7 @@ const App = () => {
               What's a <span className="text-[#FF0011]">Superlike</span>?
             </motion.h2>
             <motion.p variants={ANIMATION_VARIANTS.fadeInUp} className="text-xl md:text-2xl font-medium text-gray-500 mb-8">
-              The move that changes everything.
+              It's like a like, but everyone can see it.
             </motion.p>
             <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="space-y-4 text-base md:text-lg text-left inline-block">
                <div className="flex items-start gap-4">
@@ -513,9 +603,9 @@ const App = () => {
             </motion.div>
             
             <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="mt-10">
-               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto" onClick={() => trackEvent('mid_see_it_in_action')}>
-                 <Button variant="secondary" className="w-full md:w-auto">
-                   See it in action
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto" onClick={() => trackEvent('mid_download_free')}>
+                 <Button className="w-full md:w-auto">
+                   Download Free
                  </Button>
                </a>
             </motion.div>
@@ -523,8 +613,28 @@ const App = () => {
         </div>
       </section>
 
+      {/* --- Mid-Page CTA --- */}
+      <section className="py-12 px-6">
+        <motion.div
+          className="max-w-xl mx-auto text-center"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={ANIMATION_VARIANTS.staggerContainer}
+        >
+          <motion.p variants={ANIMATION_VARIANTS.fadeInUp} className="text-xl md:text-2xl font-bold mb-4">
+            Ready to see the truth?
+          </motion.p>
+          <motion.div variants={ANIMATION_VARIANTS.fadeInUp} className="flex justify-center">
+            <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent('mid_scroll_download_free')}>
+              <Button className="w-full md:w-auto">Download Free</Button>
+            </a>
+          </motion.div>
+        </motion.div>
+      </section>
+
       {/* --- Why Superlikes Matter --- */}
-      <section className="py-20 md:py-32 px-6 bg-black text-white rounded-[40px] md:rounded-[80px] mx-4 md:mx-8 mb-20">
+      <section ref={whySuperlikesMatterRef as React.RefObject<HTMLElement>} className="py-20 md:py-32 px-6 bg-black text-white rounded-[40px] md:rounded-[80px] mx-4 md:mx-8 mb-20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-black mb-4 text-white">Why Superlikes Hit Different</h2>
@@ -533,9 +643,9 @@ const App = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { icon: "👀", title: "Complete Transparency", desc: "See exactly who's Superliking who. No secrets, no hiding. If they're playing games, you'll know." },
-              { icon: "💙", title: "Stand Out Instantly", desc: "Your Superlike gets their attention immediately. No algorithm games, no getting lost in the feed." },
-              { icon: "🔥", title: "Keep It Real", desc: "Superlikes can't be faked or spammed. They mean something. When someone sends you one, they're for real." }
+              { icon: "👀", title: "Complete Transparency", desc: "See who's Superliking who. No hiding." },
+              { icon: "💙", title: "Stand Out Instantly", desc: "Your Superlike gets instant attention. No algorithm." },
+              { icon: "🔥", title: "Keep It Real", desc: "Can't be faked. When they send one, they mean it." }
             ].map((item, idx) => (
               <motion.div
                 key={idx}
@@ -556,7 +666,7 @@ const App = () => {
       </section>
 
       {/* --- Final CTA / Waitlist --- */}
-      <section id="waitlist-section" className="py-24 md:py-40 px-6 relative overflow-hidden">
+      <section ref={finalCTARef as React.RefObject<HTMLElement>} id="waitlist-section" className="py-24 md:py-40 px-6 relative overflow-hidden">
         {/* Decorative Background Blobs for CTA */}
         <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-red-500/10 blur-[80px] rounded-full" />
@@ -607,13 +717,13 @@ const App = () => {
                </a>
 
                {/* CTA Button */}
-               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full max-w-xs mx-auto" onClick={() => trackEvent('footer_get_waveful_free')}>
+               <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="w-full max-w-xs mx-auto" onClick={() => trackEvent('footer_download_free')}>
                  <Button className="w-full md:!w-full h-14">
-                   Get Waveful — Free
+                   Download Free
                  </Button>
                </a>
 
-               <p className="text-sm text-gray-400 font-medium">Join 3M+ people discovering the truth about their relationship</p>
+               <p className="text-sm text-gray-400 font-medium">Free on iOS — No credit card needed</p>
              </motion.div>
           </motion.div>
         </div>
@@ -625,7 +735,7 @@ const App = () => {
       </section>
 
       {/* --- Footer --- */}
-      <footer className="py-12 px-6 border-t border-gray-100 bg-white mb-10">
+      <footer className="py-12 px-6 border-t border-gray-100 bg-white">
         <div className="max-w-7xl mx-auto flex flex-col items-center gap-6 text-center">
           <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all duration-300">
             <div className="w-8 h-8 rounded-xl overflow-hidden shadow-md">
@@ -635,38 +745,33 @@ const App = () => {
           </div>
           
           <div className="flex items-center gap-6 text-sm font-medium text-gray-500">
-             <a href="#" className="hover:text-black transition-colors" onClick={() => trackEvent('footer_about')}>About</a>
+             <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors" onClick={() => trackEvent('footer_about')}>About</a>
              <span>•</span>
-             <a href="#" className="hover:text-black transition-colors" onClick={() => trackEvent('footer_privacy')}>Privacy</a>
+             <a href="mailto:support@waveful.com" className="hover:text-black transition-colors" onClick={() => trackEvent('footer_privacy')}>Privacy</a>
              <span>•</span>
-             <a href="#" className="hover:text-black transition-colors" onClick={() => trackEvent('footer_terms')}>Terms</a>
+             <a href="mailto:support@waveful.com" className="hover:text-black transition-colors" onClick={() => trackEvent('footer_terms')}>Terms</a>
           </div>
 
           <p className="text-xs text-gray-400 font-medium">© 2026 Waveful</p>
         </div>
       </footer>
 
-      {/* --- Ticker --- */}
-      <div className="fixed bottom-0 left-0 w-full z-40 bg-black text-white py-3 overflow-hidden border-t-2 border-[#FF0011]">
-        <motion.div 
-          className="whitespace-nowrap flex gap-8 items-center font-bold text-sm md:text-base tracking-widest uppercase"
-          animate={{ x: [0, -1000] }}
-          transition={{ 
-            repeat: Infinity, 
-            ease: "linear", 
-            duration: isMobile ? 20 : 30 
-          }}
-        >
-          {Array(10).fill(null).map((_, i) => (
-             <React.Fragment key={i}>
-                <span>SUPERLIKES REVEAL EVERYTHING 💔</span>
-                <span>SEE WHO THEY REALLY LIKE 👀</span>
-                <span>NO MORE SECRETS 💙</span>
-                <span>BE THE ONE WHO GETS SUPERLIKED ✨</span>
-             </React.Fragment>
-          ))}
-        </motion.div>
-      </div>
+      {/* --- Sticky Mobile CTA --- */}
+      <AnimatePresence>
+        {isMobile && showStickyCTA && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-3"
+          >
+            <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent('sticky_download_free')}>
+              <Button className="w-full">Download Free</Button>
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
